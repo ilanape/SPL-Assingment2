@@ -89,33 +89,33 @@ public class MessageBusImpl implements MessageBus {//singleton
     }
 
     @Override
-    public void unregister(MicroService m) {
-        if (MessageQueue.containsKey(m)) {
-            MessageQueue.remove(m);
+    public void unregister(MicroService ms) {
+        if (MessageQueue.containsKey(ms)) {
+            MessageQueue.remove(ms);
             //removal from subscribers
             for (Queue q : subscribers.values()) {
-                if (q.contains(m))
-                    q.remove(m);
+                if (q.contains(ms))
+                    q.remove(ms);
             }
         }
     }
 
     @Override
-    public Message awaitMessage(MicroService m) throws InterruptedException {
-        //m was never registered
-        if (!MessageQueue.containsKey(m))
+    public Message awaitMessage(MicroService ms) throws InterruptedException {
+        //ms was never registered
+        if (!MessageQueue.containsKey(ms))
             throw new IllegalStateException("this MS did not register yet");
 
         //is registered
-        if (MessageQueue.get(m).isEmpty()) {
-            synchronized (MessageQueue.get(m)) { //waiting on m's message queue monitor
-                while (MessageQueue.get(m).isEmpty()) {
+        if (MessageQueue.get(ms).isEmpty()) {
+            synchronized (MessageQueue.get(ms)) { //waiting on ms's message queue monitor
+                while (MessageQueue.get(ms).isEmpty()) {
                     try {
-                        MessageQueue.get(m).wait();
+                        MessageQueue.get(ms).wait();
                     } catch (InterruptedException e) {}
                 }
             }
         }
-        return MessageQueue.get(m).poll();
+        return MessageQueue.get(ms).poll();
     }
 }
