@@ -13,11 +13,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * HanSoloMicroservices is in charge of the handling {@link AttackEvent}.
- * This class may not hold references for objects which it is not responsible for:
- * {@link AttackEvent}.
- * <p>
- * You can add private fields and public methods to this class.
- * You MAY change constructor signatures and even add new public constructors.
  */
 public class HanSoloMicroservice extends MicroService {
 
@@ -25,28 +20,38 @@ public class HanSoloMicroservice extends MicroService {
         super("Han");
     }
 
-
     @Override
     protected void initialize() {
         subscribeEvent(AttackEvent.class, (AttackEvent event) -> {
+            //callback
+            //acquire resources depend on the attack requirements
             List<Integer> ewokSerials = event.getSerials();
-            int duration = event.getDuration();
             Ewoks.getInstance().acquire(ewokSerials);
+
+            int duration = event.getDuration();
             try {
                 Thread.sleep(duration);
-                AtomicInteger i = Diary.getInstance().getTotalAttacks();
-                Diary.getInstance().setTotalAttacks(i.incrementAndGet()); //set to diary
+
+                //set to diary total attacks
+                AtomicInteger overallAttacksCounter = Diary.getInstance().getTotalAttacks();
+                Diary.getInstance().setTotalAttacks(overallAttacksCounter.incrementAndGet());
+
                 complete(event, true);
-                Diary.getInstance().setHanSoloFinish(System.currentTimeMillis()); //set to diary finish (will replace current each time)
+
+                //set to diary finish (will replace current each time)
+                Diary.getInstance().setHanSoloFinish(System.currentTimeMillis());
                 Ewoks.getInstance().release(ewokSerials);
             } catch (InterruptedException e) {}
         });
 
         subscribeBroadcast(Finish.class, (Finish broadcast) -> {
+            //callback
+            //receives only Finish type of broadcast
             terminate();
-            Main.terLatch.countDown();
+            Main.TerminateLatch.countDown();
         });
 
-        Main.latch.countDown();
+        //initialize complete
+        Main.subscribeLatch.countDown();
     }
 }

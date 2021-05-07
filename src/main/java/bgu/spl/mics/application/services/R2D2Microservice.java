@@ -8,11 +8,6 @@ import bgu.spl.mics.application.passiveObjects.Diary;
 
 /**
  * R2D2Microservices is in charge of the handling {@link DeactivationEvent}.
- * This class may not hold references for objects which it is not responsible for:
- * {@link DeactivationEvent}.
- * <p>
- * You can add private fields and public methods to this class.
- * You MAY change constructor signatures and even add new public constructors.
  */
 public class R2D2Microservice extends MicroService {
     private long duration;
@@ -25,19 +20,24 @@ public class R2D2Microservice extends MicroService {
     @Override
     protected void initialize() {
         subscribeEvent(DeactivationEvent.class, (DeactivationEvent event) -> {
+            //callback
             try {
                 Thread.sleep(duration);
                 complete(event, true);
-                Diary.getInstance().setR2D2Deactivate(System.currentTimeMillis()); //set to diary deactivate
-            } catch (InterruptedException e) {
-            }
+
+                //set to diary deactivate
+                Diary.getInstance().setR2D2Deactivate(System.currentTimeMillis());
+            } catch (InterruptedException e) {}
         });
 
         subscribeBroadcast(Finish.class, (Finish broadcast) -> {
+            //callback
+            //receives only Finish type of broadcast
             terminate();
-            Main.terLatch.countDown();
+            Main.TerminateLatch.countDown();
         });
 
-        Main.latch.countDown();
+        //initialize complete
+        Main.subscribeLatch.countDown();
     }
 }

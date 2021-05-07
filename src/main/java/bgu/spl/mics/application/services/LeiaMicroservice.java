@@ -11,12 +11,7 @@ import bgu.spl.mics.application.passiveObjects.Attack;
 import bgu.spl.mics.application.messages.AttackEvent;
 
 /**
- * LeiaMicroservices Initialized with Attack objects, and sends them as  {@link AttackEvent}.
- * This class may not hold references for objects which it is not responsible for:
- * {@link AttackEvent}.
- * <p>
- * You can add private fields and public methods to this class.
- * You MAY change constructor signatures and even add new public constructors.
+ * LeiaMicroservices Initialized with Attack objects, and sends them as {@link AttackEvent}.
  */
 public class LeiaMicroservice extends MicroService {
     private Attack[] attacks;
@@ -31,12 +26,15 @@ public class LeiaMicroservice extends MicroService {
     @Override
     protected void initialize() {
         subscribeBroadcast(Finish.class, (Finish broadcast) -> {
+            //callback
+            //receives only Finish type of broadcast
             terminate();
-            Main.terLatch.countDown();
+            Main.TerminateLatch.countDown();
         });
 
         try {
-            Main.latch.await(); //waits until everybody has subscribed
+            //waits until everybody has subscribed
+            Main.subscribeLatch.await();
         } catch (InterruptedException e) {}
 
         //send attack events
@@ -55,6 +53,7 @@ public class LeiaMicroservice extends MicroService {
         Future<?> bombResult = sendEvent(new BombDestroyerEvent());
         bombResult.get(); //waits until resolved
 
+        //notifies all to finish
         sendBroadcast(new Finish());
     }
 }

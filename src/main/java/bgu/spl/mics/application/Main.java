@@ -14,21 +14,23 @@ import java.io.Reader;
 import java.util.concurrent.CountDownLatch;
 
 /**
- * This is the Main class of the application. You should parse the input file,
- * create the different components of the application, and run the system.
- * In the end, you should output a JSON.
+ * This is the Main class of the application. It parses the input file,
+ * creates the different components of the application, and runs the system.
+ * In the end, it outputs a JSON.
  */
 public class Main {
-    public static CountDownLatch latch;
-    public static CountDownLatch terLatch;
-
+    public static CountDownLatch subscribeLatch;
+    public static CountDownLatch TerminateLatch;
 
     public static void main(String[] args) {
         Diary.getInstance(); //Diary init
-        latch=new CountDownLatch(4); //for Leia to start sending messages
-        terLatch=new CountDownLatch(5); //for output file generation
+        //for Leia to start sending messages
+        // starts when all the others are subscribed to messages
+        subscribeLatch =new CountDownLatch(4);
+        //for output file generation
+        TerminateLatch =new CountDownLatch(5);
 
-        //input
+        //input file parsing
         Gson gson = new Gson();
         Input input = new Input();
         try (Reader reader = new FileReader("input.json")) {
@@ -44,30 +46,29 @@ public class Main {
         }
         Ewoks.getInstance().setEwoks(arr);
 
-        //ms init
+        //MS init
         Thread Leia = new Thread(new LeiaMicroservice(input.getAttacks()));
         Thread C3PO = new Thread(new C3POMicroservice());
         Thread HanSolo = new Thread(new HanSoloMicroservice());
         Thread R2D2 = new Thread(new R2D2Microservice(input.getR2D2()));
         Thread Lando = new Thread(new LandoMicroservice(input.getLando()));
 
-        //ms start
+        //MS start
         Leia.start();
         C3PO.start();
         HanSolo.start();
         R2D2.start();
         Lando.start();
 
-        //output
+        //output file creation
         try{
-            terLatch.await();
+            TerminateLatch.await();
+
             try (FileWriter writer = new FileWriter("Output.json")) {
                 gson.toJson(Diary.getInstance(), writer);
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            System.out.println(gson.toJson(Diary.getInstance())); //for debug
-            System.out.println("difference: "+(Diary.getInstance().getC3POTerminate()-Diary.getInstance().getC3POFinish()));
         }catch (InterruptedException e){}
     }
 }

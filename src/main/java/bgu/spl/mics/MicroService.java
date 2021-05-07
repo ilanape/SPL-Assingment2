@@ -18,8 +18,6 @@ import java.util.HashMap;
  * method). The abstract MicroService stores this callback together with the
  * type of the message is related to.
  * <p>
- * Only private fields and methods may be added to this class.
- * <p>
  */
 public abstract class MicroService implements Runnable {
 
@@ -162,19 +160,20 @@ public abstract class MicroService implements Runnable {
      */
     @Override
     public final void run() {
-        MB.register(this); //registration
-        initialize(); //initialization
+        MB.register(this);
+        initialize();
         while (!shouldTerminate) { //message loop design pattern
             try {
                 Message m = MB.awaitMessage(this);
                 if (m != null)
                     instructions.get(m.getClass()).call(m); //act
-            } catch (InterruptedException e) {
-            }
+            } catch (InterruptedException e) {}
         }
+
         //should terminate
         MB.unregister(this);
-        Diary.getInstance().setTerminate(this, System.currentTimeMillis()); //set to diary terminate
+        //set to diary terminate
+        Diary.getInstance().setTerminate(this, System.currentTimeMillis());
     }
 
 }

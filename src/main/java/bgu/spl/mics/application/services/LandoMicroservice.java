@@ -7,8 +7,6 @@ import bgu.spl.mics.application.messages.Finish;
 
 /**
  * LandoMicroservice
- * You can add private fields and public methods to this class.
- * You MAY change constructor signatures and even add new public constructors.
  */
 public class LandoMicroservice extends MicroService {
     private long duration;
@@ -21,18 +19,21 @@ public class LandoMicroservice extends MicroService {
     @Override
     protected void initialize() {
         subscribeEvent(BombDestroyerEvent.class, (BombDestroyerEvent event) -> {
+            //callback
             try {
                 Thread.sleep(duration);
                 complete(event, true);
-            } catch (InterruptedException e) {
-            }
+            } catch (InterruptedException e) {}
         });
 
         subscribeBroadcast(Finish.class, (Finish broadcast) -> {
+            //callback
+            //receives only Finish type of broadcast
             terminate();
-            Main.terLatch.countDown();
+            Main.TerminateLatch.countDown();
         });
 
-        Main.latch.countDown();
+        //initialize complete
+        Main.subscribeLatch.countDown();
     }
 }

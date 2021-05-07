@@ -8,12 +8,10 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Passive data-object representing a Diary - in which the flow of the battle is recorded.
- * We are going to compare your recordings with the expected recordings, and make sure that your output makes sense.
- * <p>
- * Do not add to this class nothing but a single constructor, getters and setters.
  */
-public class Diary {//singleton
+public class Diary {
 
+    //singleton
     private static class DiaryHolder {
         private static Diary instance = new Diary();
     }
@@ -44,40 +42,30 @@ public class Diary {//singleton
     public static Diary getInstance() {
         return DiaryHolder.instance;
     }
-
     public AtomicInteger getTotalAttacks() {
         return totalAttacks;
     }
-
-
     public long getC3POFinish() {
         return C3POFinish;
     }
-
     public long getHanSoloFinish() {
         return HanSoloFinish;
     }
-
     public long getR2D2Deactivate() {
         return R2D2Deactivate;
     }
-
     public long getLeiaTerminate() {
         return LeiaTerminate;
     }
-
     public long getHanSoloTerminate() {
         return HanSoloTerminate;
     }
-
     public long getC3POTerminate() {
         return C3POTerminate;
     }
-
     public long getR2D2Terminate() {
         return R2D2Terminate;
     }
-
     public long getLandoTerminate() {
         return LandoTerminate;
     }
@@ -86,7 +74,6 @@ public class Diary {//singleton
     public void setTotalAttacks(int i) {
         totalAttacks.compareAndSet(totalAttacks.get(), i);
     }
-
     public void setTerminate(MicroService m, long timestamp) {
         if (m instanceof LeiaMicroservice)
             LeiaTerminate = timestamp;
@@ -99,15 +86,12 @@ public class Diary {//singleton
         if (m instanceof LandoMicroservice)
             LandoTerminate = timestamp;
     }
-
     public void setR2D2Deactivate(long timeStamp) {
         R2D2Deactivate = timeStamp;
     }
-
     public void setHanSoloFinish(long timeStamp) {
         HanSoloFinish = timeStamp;
     }
-
     public void setC3POFinish(long timeStamp) {
         C3POFinish = timeStamp;
     }

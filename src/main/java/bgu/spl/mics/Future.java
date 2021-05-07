@@ -34,8 +34,7 @@ public class Future<T> {
         while (!isDone()) {
             try {
                 wait();
-            } catch (InterruptedException e) {
-            }
+            } catch (InterruptedException e) {}
         }
         return result;
     }
@@ -71,8 +70,7 @@ public class Future<T> {
     public synchronized T get(long timeout, TimeUnit unit) {
         try {
             unit.timedWait(this, timeout);
-        } catch (InterruptedException e) {
-        }
+        } catch (InterruptedException e) {}
         return result;
     }
 }
